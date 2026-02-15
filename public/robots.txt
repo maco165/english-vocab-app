@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://maco165.github.io/english-vocab-app/sitemap.xml

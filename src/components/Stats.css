@@ -1,0 +1,221 @@
+.stats {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.stats-header h2 {
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.refresh-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  background: #0f3460;
+  color: #8892b0;
+  border: 1px solid #1a4a7a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover {
+  background: #1a4a7a;
+  color: #e2e8f0;
+}
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 12px;
+  padding: 1.2rem 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #e2e8f0;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #8892b0;
+}
+
+.stat-card.correct .stat-value {
+  color: #4ade80;
+}
+
+.stat-card.incorrect .stat-value {
+  color: #f87171;
+}
+
+.stat-card.rate .stat-value {
+  color: #60a5fa;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: #16213e;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.mistakes-section {
+  margin-bottom: 2rem;
+}
+
+.mistakes-section h3 {
+  color: #f87171;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.mistakes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mistake-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 8px;
+}
+
+.mistake-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mistake-example {
+  color: #6b7fa3;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin: 0;
+  padding-left: 0.2rem;
+}
+
+.mistake-example-ja {
+  color: #5a6e8a;
+  font-size: 0.75rem;
+  margin: 0;
+  padding-left: 0.2rem;
+}
+
+.mistake-word {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mistake-word strong {
+  color: #e2e8f0;
+  font-size: 1rem;
+}
+
+.mistake-word span {
+  color: #8892b0;
+  font-size: 0.85rem;
+}
+
+.mistake-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.mistake-counts {
+  display: flex;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.count-correct {
+  color: #4ade80;
+}
+
+.count-incorrect {
+  color: #f87171;
+}
+
+.streak-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.streak-badge.mastered {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.streak-badge.needs-review {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.stats-empty {
+  text-align: center;
+  color: #8892b0;
+  padding: 3rem 0;
+  font-size: 1.1rem;
+}
+
+.reset-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 0.7rem 1.5rem;
+  font-size: 0.9rem;
+  background: transparent;
+  color: #f87171;
+  border: 1px solid #f87171;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+@media (max-width: 500px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
