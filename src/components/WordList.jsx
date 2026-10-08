@@ -1,5 +1,6 @@
 import { useState } from "react";
 import words from "../data/words";
+import { SearchIcon } from "./icons";
 import "./WordList.css";
 
 export default function WordList() {
@@ -13,32 +14,38 @@ export default function WordList() {
 
   return (
     <div className="wordlist">
-      <div className="wordlist-header">
-        <h2>単語一覧</h2>
-        <span className="wordlist-count">{filtered.length} / {words.length} 語</span>
+      <div className="page-header wordlist-header">
+        <h1>単語一覧</h1>
+        <span className="page-count wordlist-count">{filtered.length} / {words.length} 語</span>
       </div>
 
-      <input
-        className="wordlist-search"
-        type="text"
-        placeholder="単語を検索..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="search-box">
+        <SearchIcon size={20} />
+        <input
+          className="wordlist-search"
+          type="text"
+          placeholder="単語を検索..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <span className="search-box-note">A–Z 順</span>
+      </div>
 
-      <div className="wordlist-items">
+      <ol className="wordlist-items">
         {filtered.map((w) => (
-          <div key={w.id} className="wordlist-item">
-            <div className="wordlist-main">
-              <span className="wordlist-id">{w.id}</span>
-              <strong className="wordlist-english">{w.english}</strong>
-              <span className="wordlist-japanese">{w.japanese}</span>
+          <li key={w.id} className="word-card wordlist-item">
+            <span className="wordlist-id">{String(w.id).padStart(3, "0")}</span>
+            <div className="wordlist-body">
+              <div className="word-head">
+                <span className="word-en wordlist-english">{w.english}</span>
+                <span className="word-ja wordlist-japanese">{w.japanese}</span>
+              </div>
+              <p className="word-example wordlist-example">{w.example}</p>
+              {w.exampleJa && <p className="word-example-ja wordlist-example-ja">{w.exampleJa}</p>}
             </div>
-            <p className="wordlist-example">{w.example}</p>
-            {w.exampleJa && <p className="wordlist-example-ja">{w.exampleJa}</p>}
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 }

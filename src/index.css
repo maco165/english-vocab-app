@@ -5,11 +5,40 @@
 }
 
 :root {
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Color */
+  --bg: #FBF8F2;
+  --surface: #FFFFFF;
+  --surface-muted: #F3EEE4;
+  --border: #E9E2D6;
+  --text: #2A2733;
+  --text-sub: #4A4556;
+  --text-muted: #6B6577;
+  --text-faint: #8A8495;
+  --accent: #C9461F;
+  --accent-soft: #FFF1EB;
+  --accent-deep: #9A3416;
+  --ok: #1E7F6E;
+  --ok-soft: #E3F3EE;
+  --ok-deep: #155E4C;
+  --warn: #B7791F;
+  --warn-soft: #FFF4DC;
+  --warn-deep: #7A4F10;
+  --warn-border: #F0D9A8;
+
+  /* Typography */
+  --font-jp: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', sans-serif;
+  --font-en: Nunito, 'Zen Maru Gothic', sans-serif;
+
+  /* Shape */
+  --radius-card: 24px;
+  --radius-pill: 999px;
+  --shadow-card: 0 6px 20px rgba(42, 39, 51, 0.05);
+
+  font-family: var(--font-jp);
   line-height: 1.5;
   font-weight: 400;
-  color: #e2e8f0;
-  background-color: #1a1a2e;
+  color: var(--text);
+  background-color: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -20,8 +49,216 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-jp);
 }
 
-button {
+button,
+input {
   font-family: inherit;
+}
+
+/* Shared buttons (§2.3) */
+.btn-primary,
+.btn-secondary,
+.btn-warn,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.btn-primary {
+  height: 52px;
+  padding: 0 32px;
+  border: none;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 16px;
+}
+
+.btn-primary:hover {
+  background: var(--accent-deep);
+}
+
+.btn-secondary {
+  height: 44px;
+  padding: 0 20px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text-sub);
+  font-size: 14px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--text-faint);
+  color: var(--text);
+}
+
+.btn-warn {
+  height: 44px;
+  padding: 0 20px;
+  border: none;
+  background: var(--warn-deep);
+  color: var(--surface);
+  font-size: 14px;
+}
+
+.btn-warn:hover {
+  background: var(--warn-deep);
+}
+
+.btn-danger {
+  height: 44px;
+  padding: 0 24px;
+  border: 2px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.btn-danger:hover {
+  border-color: var(--text-faint);
+  color: var(--text);
+}
+
+/* Shared badges (§2.6) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-num {
+  font-family: var(--font-en);
+}
+
+.badge-ok {
+  background: var(--ok-soft);
+  color: var(--ok-deep);
+}
+
+.badge-ng {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+.text-ok {
+  color: var(--ok);
+}
+
+/* Shared search box (§2.5) */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 6px 8px 6px 20px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  transition: border-color 0.15s;
+}
+
+.search-box:focus-within {
+  border-color: var(--accent);
+}
+
+.search-box input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: var(--text-faint);
+}
+
+.search-box-note {
+  padding-right: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Shared word card (WordList / Stats / QuizEnd) */
+.word-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 18px 24px;
+}
+
+.word-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+}
+
+.word-en {
+  font-family: var(--font-en);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.word-ja {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-sub);
+}
+
+.word-example {
+  margin: 6px 0 0;
+  font-family: var(--font-en);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.word-example-ja {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Shared page header (一覧・統計) */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.page-count {
+  font-family: var(--font-en);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-muted);
 }

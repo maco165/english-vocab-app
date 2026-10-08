@@ -3,6 +3,7 @@ import words from "../data/words";
 import { saveResult } from "../utils/storage";
 import Result from "./Result";
 import QuizEnd from "./QuizEnd";
+import { ArrowIcon, CircleIcon, XIcon } from "./icons";
 import "./Quiz.css";
 
 function shuffleArray(array) {
@@ -33,28 +34,44 @@ function QuizStart({ onStart }) {
 
   return (
     <div className="quiz-start">
-      <h2>クイズモード選択</h2>
-      <p className="quiz-start-desc">問題数を選んでスタートしましょう</p>
+      <div className="quiz-start-head">
+        <p className="eyebrow">QUIZ MODE</p>
+        <h1>今日はどのくらい挑戦する？</h1>
+        <p className="lead">
+          問題数を選んでスタート。全{words.length}語から出題されます。
+        </p>
+      </div>
 
       <div className="mode-buttons">
         <button className="mode-btn" onClick={() => onStart(30)}>
           <span className="mode-count">30</span>
           <span className="mode-label">問モード</span>
+          <span className="mode-desc">すきま時間にサクッと</span>
         </button>
         <button className="mode-btn" onClick={() => onStart(100)}>
           <span className="mode-count">100</span>
           <span className="mode-label">問モード</span>
+          <span className="mode-desc">じっくり集中して</span>
         </button>
         <button className="mode-btn full" onClick={() => onStart(words.length)}>
           <span className="mode-count">{words.length}</span>
           <span className="mode-label">全問モード</span>
+          <span className="mode-desc">道場の全単語を制覇</span>
         </button>
       </div>
 
       <div className="mode-custom">
-        <label className="custom-label">カスタム</label>
+        <div className="custom-text">
+          <label className="custom-label" htmlFor="custom-count">
+            カスタム
+          </label>
+          <span className="custom-desc">
+            好きな問題数で始める（1〜{words.length}）
+          </span>
+        </div>
         <div className="custom-input-row">
           <input
+            id="custom-count"
             type="number"
             className="custom-input"
             min={1}
@@ -67,10 +84,11 @@ function QuizStart({ onStart }) {
           />
           <span className="custom-suffix">問</span>
           <button
-            className="custom-start-btn"
+            className="btn-primary custom-start-btn"
             onClick={() => onStart(customCount)}
           >
             スタート
+            <ArrowIcon size={18} />
           </button>
         </div>
       </div>
@@ -152,7 +170,7 @@ export default function Quiz() {
   return (
     <div className="quiz">
       <div className="quiz-progress">
-        <span>
+        <span className="quiz-count">
           {currentIndex + 1} / {totalCount}
         </span>
         <div className="quiz-progress-bar">
@@ -161,21 +179,25 @@ export default function Quiz() {
             style={{ width: `${((currentIndex + 1) / totalCount) * 100}%` }}
           />
         </div>
+        <span className="quiz-score">正解 {sessionCorrect}</span>
       </div>
 
       <div className="quiz-question">
         <p className="quiz-label">この英単語の意味は？</p>
-        <h2 className="quiz-word">{question?.correctWord.english}</h2>
+        <h1 className="quiz-word">{question?.correctWord.english}</h1>
       </div>
 
       <div className="quiz-choices">
         {question?.choices.map((choice) => {
           let className = "choice-btn";
+          let icon = null;
           if (isAnswered) {
             if (choice.id === question.correctWord.id) {
               className += " correct";
+              icon = <CircleIcon size={22} />;
             } else if (choice.id === selectedId) {
               className += " incorrect";
+              icon = <XIcon size={22} />;
             }
           }
           return (
@@ -185,6 +207,7 @@ export default function Quiz() {
               onClick={() => handleSelect(choice)}
               disabled={isAnswered}
             >
+              {icon}
               {choice.japanese}
             </button>
           );

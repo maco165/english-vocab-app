@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import words from "../data/words";
 import { saveResult } from "../utils/storage";
 import Result from "./Result";
+import { CircleIcon, RefreshIcon, XIcon } from "./icons";
 import "./Quiz.css";
 import "./Review.css";
 
@@ -76,23 +77,36 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
     const isCorrect = selectedId === question.correctWord.id;
     return (
       <div className="quiz">
-        <div className="review-badge">
-          間違えた問題を復習中 — 残り {remainingMistakes.length} 語
+        <div className="review-banner">
+          <div className="review-banner-main">
+            <span className="review-banner-icon">
+              <RefreshIcon size={18} />
+            </span>
+            <div className="review-banner-text">
+              <p className="review-banner-title">間違えた問題を復習中</p>
+            </div>
+          </div>
+          <span className="review-remaining">
+            残り {remainingMistakes.length} 語
+          </span>
         </div>
 
         <div className="quiz-question">
           <p className="quiz-label">この英単語の意味は？</p>
-          <h2 className="quiz-word">{question.correctWord.english}</h2>
+          <h1 className="quiz-word">{question.correctWord.english}</h1>
         </div>
 
         <div className="quiz-choices">
           {question.choices.map((choice) => {
             let className = "choice-btn";
+            let icon = null;
             if (isAnswered) {
               if (choice.id === question.correctWord.id) {
                 className += " correct";
+                icon = <CircleIcon size={22} />;
               } else if (choice.id === selectedId) {
                 className += " incorrect";
+                icon = <XIcon size={22} />;
               }
             }
             return (
@@ -102,6 +116,7 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
                 onClick={() => handleSelect(choice)}
                 disabled={isAnswered}
               >
+                {icon}
                 {choice.japanese}
               </button>
             );
@@ -124,16 +139,16 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
     return (
       <div className="quiz-end">
         <div className="quiz-end-header">
-          <h2>復習完了！</h2>
-          <p style={{ color: "#4ade80", margin: 0 }}>
+          <h1>復習完了！</h1>
+          <p className="text-ok">
             間違えた問題をすべて正解しました
           </p>
         </div>
         <div className="end-actions">
-          <button className="end-btn primary" onClick={onRetry}>
+          <button className="btn-primary end-btn" onClick={onRetry}>
             もう一度挑戦
           </button>
-          <button className="end-btn secondary" onClick={onBack}>
+          <button className="btn-secondary end-btn" onClick={onBack}>
             モード選択へ
           </button>
         </div>
@@ -145,7 +160,7 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
   return (
     <div className="quiz-end">
       <div className="quiz-end-header">
-        <h2>クイズ終了！</h2>
+        <h1>クイズ終了！</h1>
         <div className="end-stats">
           <div className="end-stat">
             <span className="end-stat-value correct">{correct}</span>
@@ -156,7 +171,10 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
             <span className="end-stat-label">不正解</span>
           </div>
           <div className="end-stat">
-            <span className="end-stat-value rate">{rate}%</span>
+            <span className="end-stat-value rate">
+              {rate}
+              <span className="unit">%</span>
+            </span>
             <span className="end-stat-label">正解率</span>
           </div>
         </div>
@@ -169,15 +187,15 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
       </div>
 
       <div className="end-actions">
-        <button className="end-btn primary" onClick={onRetry}>
+        <button className="btn-primary end-btn" onClick={onRetry}>
           もう一度挑戦
         </button>
         {mistakes.length > 0 && (
-          <button className="end-btn review" onClick={startReview}>
+          <button className="btn-warn end-btn" onClick={startReview}>
             間違えた問題を復習 ({mistakes.length}問)
           </button>
         )}
-        <button className="end-btn secondary" onClick={onBack}>
+        <button className="btn-secondary end-btn" onClick={onBack}>
           モード選択へ
         </button>
       </div>
@@ -186,13 +204,13 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
         <div className="end-mistakes">
           <h3>間違えた単語 ({mistakes.length}問)</h3>
           {mistakes.map((w) => (
-            <div key={w.id} className="end-mistake-item">
-              <div className="end-mistake-main">
-                <strong>{w.english}</strong>
-                <span>{w.japanese}</span>
+            <div key={w.id} className="word-card end-mistake-item">
+              <div className="word-head">
+                <span className="word-en">{w.english}</span>
+                <span className="word-ja">{w.japanese}</span>
               </div>
-              <p className="end-mistake-example">{w.example}</p>
-              {w.exampleJa && <p className="end-mistake-example-ja">{w.exampleJa}</p>}
+              <p className="word-example">{w.example}</p>
+              {w.exampleJa && <p className="word-example-ja">{w.exampleJa}</p>}
             </div>
           ))}
         </div>
