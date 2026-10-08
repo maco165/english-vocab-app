@@ -41,7 +41,10 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1 className="app-title">英単語道場</h1>
+        <div className="brand">
+          <span className="brand-mark">道</span>
+          <span className="brand-name">英単語道場</span>
+        </div>
 
         {/* Desktop nav */}
         <nav className="app-nav desktop-nav">
@@ -91,7 +94,7 @@ export default function App() {
         {page === "review" && <Review key={Date.now()} />}
         {page === "words" && <WordList />}
         {page === "grammar" && <GrammarList />}
-        {page === "stats" && <Stats />}
+        {page === "stats" && <Stats onReview={() => handleNav("review")} />}
       </main>
     </div>
   );
