@@ -184,7 +184,7 @@ export default function Quiz() {
 
       <div className="quiz-question">
         <p className="quiz-label">この英単語の意味は？</p>
-        <h2 className="quiz-word">{question?.correctWord.english}</h2>
+        <h1 className="quiz-word">{question?.correctWord.english}</h1>
       </div>
 
       <div className="quiz-choices">

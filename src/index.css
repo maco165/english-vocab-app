@@ -105,7 +105,7 @@ input {
   height: 44px;
   padding: 0 20px;
   border: none;
-  background: var(--warn);
+  background: var(--warn-deep);
   color: var(--surface);
   font-size: 14px;
 }
@@ -194,7 +194,7 @@ input {
 .search-box-note {
   padding-right: 8px;
   font-size: 13px;
-  color: var(--text-faint);
+  color: var(--text-muted);
   white-space: nowrap;
 }
 

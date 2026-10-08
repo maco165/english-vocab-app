@@ -63,7 +63,7 @@ export default function Review() {
         <div className="review-empty-icon">
           <CheckIcon size={32} />
         </div>
-        <h2>復習する単語がありません</h2>
+        <h1>復習する単語がありません</h1>
         <p>
           間違えた単語がないか、すべて連続正解済みです。
           <br />
@@ -79,7 +79,7 @@ export default function Review() {
         <div className="review-empty-icon">
           <CheckIcon size={32} />
         </div>
-        <h2>すべて復習完了！</h2>
+        <h1>すべて復習完了！</h1>
         <p>間違えた単語をすべて正解しました。</p>
       </div>
     );
@@ -106,10 +106,12 @@ export default function Review() {
 
       <div className="quiz-question">
         <p className="quiz-label">この英単語の意味は？</p>
-        <h2 className="quiz-word">{question.correctWord.english}</h2>
+        <h1 className="quiz-word">{question.correctWord.english}</h1>
         <span className="badge badge-ng review-last">
           前回 <XIcon size={14} />{" "}
-          {getStats().wordStats[question.correctWord.id]?.incorrect ?? 0}回
+          {(getStats().wordStats[question.correctWord.id]?.incorrect ?? 0) -
+            (isAnswered && !isCorrect ? 1 : 0)}
+          回
         </span>
       </div>
 
@@ -141,10 +143,12 @@ export default function Review() {
       </div>
 
       <div className="review-dots" aria-hidden="true">
-        {reviewWords.map((w, i) => (
+        {reviewWords.map((w) => (
           <span
             key={w.id}
-            className={`review-dot ${i === 0 ? "current" : ""}`}
+            className={`review-dot ${
+              w.id === question.correctWord.id ? "current" : ""
+            }`}
           />
         ))}
       </div>

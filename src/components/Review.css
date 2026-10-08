@@ -107,7 +107,7 @@
   color: var(--ok);
 }
 
-.review-empty h2 {
+.review-empty h1 {
   margin: 0;
   font-size: 22px;
   font-weight: 700;

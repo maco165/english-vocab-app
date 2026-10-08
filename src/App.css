@@ -12,7 +12,7 @@
   justify-content: space-between;
   gap: 16px;
   min-height: 72px;
-  padding: 12px 32px;
+  padding: 7px 32px 8px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -53,6 +53,7 @@
 }
 
 .nav-btn {
+  min-height: 44px;
   padding: 10px 20px;
   border: none;
   border-radius: var(--radius-pill);

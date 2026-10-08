@@ -93,7 +93,7 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
 
         <div className="quiz-question">
           <p className="quiz-label">この英単語の意味は？</p>
-          <h2 className="quiz-word">{question.correctWord.english}</h2>
+          <h1 className="quiz-word">{question.correctWord.english}</h1>
         </div>
 
         <div className="quiz-choices">
@@ -139,7 +139,7 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
     return (
       <div className="quiz-end">
         <div className="quiz-end-header">
-          <h2>復習完了！</h2>
+          <h1>復習完了！</h1>
           <p className="text-ok">
             間違えた問題をすべて正解しました
           </p>
@@ -160,7 +160,7 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
   return (
     <div className="quiz-end">
       <div className="quiz-end-header">
-        <h2>クイズ終了！</h2>
+        <h1>クイズ終了！</h1>
         <div className="end-stats">
           <div className="end-stat">
             <span className="end-stat-value correct">{correct}</span>

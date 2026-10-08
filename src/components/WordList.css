@@ -27,7 +27,7 @@
   font-family: var(--font-en);
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-faint);
+  color: var(--text-muted);
 }
 
 .wordlist-body {
