@@ -1,8 +1,15 @@
 import { useState } from "react";
 import grammar from "../data/grammar";
+import { ChevronDownIcon, ChevronUpIcon, SearchIcon } from "./icons";
 import "./GrammarList.css";
 
 const categories = [...new Set(grammar.map((g) => g.category))];
+
+// "現在形 (Present Simple)" -> ["現在形", "(Present Simple)"]
+function splitTitle(title) {
+  const m = title.match(/^(.*?)\s*(\([^()]*\))$/);
+  return m ? [m[1], m[2]] : [title, null];
+}
 
 export default function GrammarList() {
   const [search, setSearch] = useState("");
@@ -22,18 +29,21 @@ export default function GrammarList() {
 
   return (
     <div className="grammar">
-      <div className="grammar-header">
-        <h2>文法一覧</h2>
-        <span className="grammar-count">{filtered.length} / {grammar.length} 項目</span>
+      <div className="page-header grammar-header">
+        <h1>文法一覧</h1>
+        <span className="page-count grammar-count">{filtered.length} / {grammar.length} 項目</span>
       </div>
 
-      <input
-        className="grammar-search"
-        type="text"
-        placeholder="文法を検索..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="search-box">
+        <SearchIcon size={20} />
+        <input
+          className="grammar-search"
+          type="text"
+          placeholder="文法を検索..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
       <div className="grammar-categories">
         <button
@@ -56,6 +66,7 @@ export default function GrammarList() {
       <div className="grammar-items">
         {filtered.map((g) => {
           const isOpen = openId === g.id;
+          const [titleJa, titleEn] = splitTitle(g.title);
           return (
             <div key={g.id} className={`grammar-item ${isOpen ? "open" : ""}`}>
               <button
@@ -64,9 +75,19 @@ export default function GrammarList() {
               >
                 <div className="grammar-item-title">
                   <span className="grammar-category-tag">{g.category}</span>
-                  <strong>{g.title}</strong>
+                  <strong>
+                    {titleJa}
+                    {titleEn && (
+                      <>
+                        {" "}
+                        <span className="grammar-title-en">{titleEn}</span>
+                      </>
+                    )}
+                  </strong>
                 </div>
-                <span className="grammar-toggle">{isOpen ? "−" : "+"}</span>
+                <span className="grammar-toggle">
+                  {isOpen ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
+                </span>
               </button>
 
               {isOpen && (

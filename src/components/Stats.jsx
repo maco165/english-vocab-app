@@ -1,9 +1,10 @@
 import { useState } from "react";
 import words from "../data/words";
 import { getStats, resetResults } from "../utils/storage";
+import { ArrowIcon, CircleIcon, RefreshIcon, XIcon } from "./icons";
 import "./Stats.css";
 
-export default function Stats() {
+export default function Stats({ onReview }) {
   const [stats, setStats] = useState(() => getStats());
 
   const handleReset = () => {
@@ -24,78 +25,100 @@ export default function Stats() {
     .sort((a, b) => b.incorrect - a.incorrect);
 
   const mistakeWords = answeredWords.filter((w) => w.incorrect > 0);
+  const reviewCount = mistakeWords.filter((w) => w.streak === 0).length;
 
   return (
     <div className="stats">
-      <div className="stats-header">
-        <h2>学習統計</h2>
-        <button className="refresh-btn" onClick={refresh}>
+      <div className="page-header stats-header">
+        <h1>学習統計</h1>
+        <button className="btn-secondary refresh-btn" onClick={refresh}>
+          <RefreshIcon size={16} />
           更新
         </button>
       </div>
 
-      <div className="stats-cards">
-        <div className="stat-card">
-          <span className="stat-value">{stats.total}</span>
-          <span className="stat-label">総回答数</span>
+      <section className="summary-card">
+        <div className="summary-grid">
+          <div className="summary-item">
+            <span className="summary-label">総回答数</span>
+            <span className="summary-value">{stats.total}</span>
+          </div>
+          <div className="summary-item correct">
+            <span className="summary-label">正解数</span>
+            <span className="summary-value">{stats.correct}</span>
+          </div>
+          <div className="summary-item incorrect">
+            <span className="summary-label">不正解数</span>
+            <span className="summary-value">{stats.incorrect}</span>
+          </div>
+          <div className="summary-item">
+            <span className="summary-label">正解率</span>
+            <span className="summary-value">
+              {stats.rate}
+              <span className="unit">%</span>
+            </span>
+          </div>
         </div>
-        <div className="stat-card correct">
-          <span className="stat-value">{stats.correct}</span>
-          <span className="stat-label">正解数</span>
-        </div>
-        <div className="stat-card incorrect">
-          <span className="stat-value">{stats.incorrect}</span>
-          <span className="stat-label">不正解数</span>
-        </div>
-        <div className="stat-card rate">
-          <span className="stat-value">{stats.rate}%</span>
-          <span className="stat-label">正解率</span>
-        </div>
-      </div>
 
-      {/* 正解率バー */}
-      {stats.total > 0 && (
-        <div className="progress-bar-container">
-          <div
-            className="progress-bar"
-            style={{ width: `${stats.rate}%` }}
-          />
-        </div>
-      )}
+        {/* 正解率バー */}
+        {stats.total > 0 && (
+          <div className="rate">
+            <div className="rate-bar">
+              <div
+                className="rate-bar-fill"
+                style={{ width: `${stats.rate}%` }}
+              />
+            </div>
+            <div className="rate-legend">
+              <span className="rate-legend-ok">正解 {stats.rate}%</span>
+              <span className="rate-legend-ng">不正解 {100 - stats.rate}%</span>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* 間違えた単語一覧 */}
       {mistakeWords.length > 0 && (
         <div className="mistakes-section">
-          <h3>間違えた単語</h3>
-          <div className="mistakes-list">
-            {mistakeWords.map((w) => (
-              <div key={w.id} className="mistake-item">
-                <div className="mistake-top">
-                  <div className="mistake-word">
-                    <strong>{w.english}</strong>
-                    <span>{w.japanese}</span>
-                  </div>
-                  <div className="mistake-info">
-                    <div className="mistake-counts">
-                      <span className="count-correct">○ {w.correct}</span>
-                      <span className="count-incorrect">× {w.incorrect}</span>
-                    </div>
-                    {w.streak > 0 ? (
-                      <span className="streak-badge mastered">
-                        {w.streak}連続正解
-                      </span>
-                    ) : (
-                      <span className="streak-badge needs-review">
-                        要復習
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <p className="mistake-example">{w.example}</p>
-                {w.exampleJa && <p className="mistake-example-ja">{w.exampleJa}</p>}
-              </div>
-            ))}
+          <div className="mistakes-header">
+            <h2>
+              間違えた単語
+              <span className="badge badge-ng badge-num">{mistakeWords.length}</span>
+            </h2>
+            {reviewCount > 0 && (
+              <button className="btn-warn" onClick={onReview}>
+                この {reviewCount} 語を復習する
+                <ArrowIcon size={16} />
+              </button>
+            )}
           </div>
+          <ul className="mistakes-list">
+            {mistakeWords.map((w) => (
+              <li key={w.id} className="word-card mistake-item">
+                <div className="mistake-body">
+                  <div className="word-head">
+                    <span className="word-en">{w.english}</span>
+                    <span className="word-ja">{w.japanese}</span>
+                  </div>
+                  <p className="word-example">{w.example}</p>
+                  {w.exampleJa && <p className="word-example-ja">{w.exampleJa}</p>}
+                </div>
+                <div className="mistake-info">
+                  <span className="badge badge-ok badge-num">
+                    <CircleIcon size={14} />
+                    {w.correct}
+                  </span>
+                  <span className="badge badge-ng badge-num">
+                    <XIcon size={14} />
+                    {w.incorrect}
+                  </span>
+                  {w.streak > 0 && (
+                    <span className="badge badge-ok">{w.streak}連続正解</span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -104,7 +127,7 @@ export default function Stats() {
       )}
 
       {stats.total > 0 && (
-        <button className="reset-btn" onClick={handleReset}>
+        <button className="btn-danger reset-btn" onClick={handleReset}>
           記録をリセット
         </button>
       )}

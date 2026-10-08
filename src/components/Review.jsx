@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import words from "../data/words";
-import { saveResult, getMistakeWordIds } from "../utils/storage";
+import { saveResult, getMistakeWordIds, getStats } from "../utils/storage";
 import Result from "./Result";
+import { CheckIcon, CircleIcon, RefreshIcon, XIcon } from "./icons";
 import "./Quiz.css";
 import "./Review.css";
 
@@ -59,7 +60,9 @@ export default function Review() {
   if (reviewWords.length === 0 && !isAnswered) {
     return (
       <div className="review-empty">
-        <div className="review-empty-icon">&#10003;</div>
+        <div className="review-empty-icon">
+          <CheckIcon size={32} />
+        </div>
         <h2>復習する単語がありません</h2>
         <p>
           間違えた単語がないか、すべて連続正解済みです。
@@ -73,7 +76,9 @@ export default function Review() {
   if (!question) {
     return (
       <div className="review-empty">
-        <div className="review-empty-icon">&#10003;</div>
+        <div className="review-empty-icon">
+          <CheckIcon size={32} />
+        </div>
         <h2>すべて復習完了！</h2>
         <p>間違えた単語をすべて正解しました。</p>
       </div>
@@ -84,23 +89,41 @@ export default function Review() {
 
   return (
     <div className="quiz">
-      <div className="review-badge">
-        復習モード — 残り {reviewWords.length} 語
+      <div className="review-banner">
+        <div className="review-banner-main">
+          <span className="review-banner-icon">
+            <RefreshIcon size={18} />
+          </span>
+          <div className="review-banner-text">
+            <p className="review-banner-title">復習モード</p>
+            <p className="review-banner-desc">
+              間違えた単語をもう一度。正解すると復習リストから外れます
+            </p>
+          </div>
+        </div>
+        <span className="review-remaining">残り {reviewWords.length} 語</span>
       </div>
 
       <div className="quiz-question">
         <p className="quiz-label">この英単語の意味は？</p>
         <h2 className="quiz-word">{question.correctWord.english}</h2>
+        <span className="badge badge-ng review-last">
+          前回 <XIcon size={14} />{" "}
+          {getStats().wordStats[question.correctWord.id]?.incorrect ?? 0}回
+        </span>
       </div>
 
       <div className="quiz-choices">
         {question.choices.map((choice) => {
           let className = "choice-btn";
+          let icon = null;
           if (isAnswered) {
             if (choice.id === question.correctWord.id) {
               className += " correct";
+              icon = <CircleIcon size={22} />;
             } else if (choice.id === selectedId) {
               className += " incorrect";
+              icon = <XIcon size={22} />;
             }
           }
           return (
@@ -110,10 +133,20 @@ export default function Review() {
               onClick={() => handleSelect(choice)}
               disabled={isAnswered}
             >
+              {icon}
               {choice.japanese}
             </button>
           );
         })}
+      </div>
+
+      <div className="review-dots" aria-hidden="true">
+        {reviewWords.map((w, i) => (
+          <span
+            key={w.id}
+            className={`review-dot ${i === 0 ? "current" : ""}`}
+          />
+        ))}
       </div>
 
       {isAnswered && (
