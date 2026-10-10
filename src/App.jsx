@@ -4,6 +4,7 @@ import Review from "./components/Review";
 import Stats from "./components/Stats";
 import WordList from "./components/WordList";
 import GrammarList from "./components/GrammarList";
+import { CodeIcon, ExternalLinkIcon } from "./components/icons";
 import "./App.css";
 
 const pages = [
@@ -58,6 +59,18 @@ export default function App() {
             </button>
           ))}
         </nav>
+
+        <a
+          className="repo-link"
+          href="https://github.com/maco165/english-vocab-app"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHubリポジトリを開く（新しいタブ）"
+        >
+          <CodeIcon size={18} />
+          <span className="repo-link__label">GitHub</span>
+          <ExternalLinkIcon size={14} className="repo-link__ext" />
+        </a>
 
         {/* Mobile nav */}
         <div className="mobile-nav" ref={menuRef}>
