@@ -1,4 +1,4 @@
-function Icon({ size = 20, className, children }) {
+function Icon({ size = 20, strokeWidth = "2.5", className, children }) {
   return (
     <svg
       width={size}
@@ -6,7 +6,7 @@ function Icon({ size = 20, className, children }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -81,6 +81,24 @@ export function ChevronDownIcon(props) {
   return (
     <Icon {...props}>
       <path d="M6 9l6 6 6-6" />
+    </Icon>
+  );
+}
+
+export function CodeIcon(props) {
+  return (
+    <Icon strokeWidth="2" {...props}>
+      <path d="M16 18l6-6-6-6" />
+      <path d="M8 6l-6 6 6 6" />
+    </Icon>
+  );
+}
+
+export function ExternalLinkIcon(props) {
+  return (
+    <Icon strokeWidth="2" {...props}>
+      <path d="M7 17L17 7" />
+      <path d="M8 7h9v9" />
     </Icon>
   );
 }

@@ -45,6 +45,7 @@
 
 .desktop-nav {
   display: flex;
+  margin-left: auto;
   flex-wrap: wrap;
   gap: 6px;
   padding: 6px;
@@ -74,6 +75,75 @@
   color: var(--accent);
   font-weight: 700;
   box-shadow: 0 1px 2px rgba(42, 39, 51, 0.08);
+}
+
+/* GitHub link: the header gap (16px) separates it from the nav. */
+.repo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid #2B2520;
+  background: var(--surface);
+  color: #2B2520;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.repo-link:hover {
+  background: #2B2520;
+  color: var(--surface);
+}
+
+.repo-link:focus-visible {
+  outline: 2px solid #C8502A;
+  outline-offset: 2px;
+}
+
+.repo-link__ext {
+  opacity: 0.55;
+}
+
+/*
+ * The spec says 767px, but the full link (label + arrow) wraps to a second row
+ * below about 819px, so it switches to icon-only at 839px.
+ */
+@media (max-width: 839px) {
+  /*
+   * Brand and icon-only link share the first row; the nav wraps below. The
+   * zero-height ::after forces the break even when all three would fit, so the
+   * link never sits before the nav. Row gap moves onto the nav to keep spacing.
+   */
+  .app-header {
+    row-gap: 0;
+  }
+
+  .app-header::after {
+    content: "";
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .desktop-nav {
+    order: 2;
+    margin-top: 16px;
+    margin-left: 0;
+  }
+
+  .repo-link {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .repo-link__label,
+  .repo-link__ext {
+    display: none;
+  }
 }
 
 /* The hamburger menu is kept in JSX but hidden; the pill nav wraps instead. */
