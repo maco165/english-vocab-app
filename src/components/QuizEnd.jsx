@@ -3,8 +3,29 @@ import words from "../data/words";
 import { saveResult } from "../utils/storage";
 import Result from "./Result";
 import { CircleIcon, RefreshIcon, XIcon } from "./icons";
+// 結果画面は Astryx の部品で描く。テーマと CSS の読み込みは AstryxScope が受け持つ。
+import AstryxScope from "./AstryxScope";
+import { Stack } from "@astryxdesign/core/Stack";
+import { Grid } from "@astryxdesign/core/Grid";
+import { Card } from "@astryxdesign/core/Card";
+import { Heading, Text } from "@astryxdesign/core/Text";
+import { ProgressBar } from "@astryxdesign/core/ProgressBar";
+import { Button } from "@astryxdesign/core/Button";
+import { List, ListItem } from "@astryxdesign/core/List";
+import { Banner } from "@astryxdesign/core/Banner";
 import "./Quiz.css";
 import "./Review.css";
+
+function Stat({ value, label }) {
+  return (
+    <Card>
+      <Stack gap={1}>
+        <Text type="display-2">{value}</Text>
+        <Text type="supporting">{label}</Text>
+      </Stack>
+    </Card>
+  );
+}
 
 function shuffleArray(array) {
   const shuffled = [...array];
@@ -35,7 +56,6 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
 
   const incorrect = total - correct;
   const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
-  const rateClass = rate >= 80 ? "high" : rate >= 50 ? "mid" : "low";
 
   const startReview = () => {
     setReviewMode(true);
@@ -58,16 +78,17 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
     }
   };
 
+  // 正解した語は handleSelect が remainingMistakes から外している。全部外れたら復習完了を出す
+  // (question を null にし、reviewMode は true のまま)。間違えた語は残し、次は別の語を優先して出す。
   const handleNext = useCallback(() => {
-    const updated = remainingMistakes.filter(
-      (w) => w.id !== question.correctWord.id
-    );
-    if (updated.length === 0) {
-      setReviewMode(false);
-      setRemainingMistakes([]);
+    if (remainingMistakes.length === 0) {
+      setQuestion(null);
       return;
     }
-    setQuestion(generateQuestionFrom(updated));
+    const others = remainingMistakes.filter(
+      (w) => w.id !== question.correctWord.id
+    );
+    setQuestion(generateQuestionFrom(others.length > 0 ? others : remainingMistakes));
     setSelectedId(null);
     setIsAnswered(false);
   }, [remainingMistakes, question]);
@@ -137,84 +158,71 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
   // 復習完了メッセージ
   if (reviewMode && !question) {
     return (
-      <div className="quiz-end">
-        <div className="quiz-end-header">
-          <h1>復習完了！</h1>
-          <p className="text-ok">
-            間違えた問題をすべて正解しました
-          </p>
-        </div>
-        <div className="end-actions">
-          <button className="btn-primary end-btn" onClick={onRetry}>
-            もう一度挑戦
-          </button>
-          <button className="btn-secondary end-btn" onClick={onBack}>
-            モード選択へ
-          </button>
-        </div>
-      </div>
+      <AstryxScope>
+        <Stack gap={4}>
+          <Banner
+            status="success"
+            title="復習完了！"
+            description="間違えた問題をすべて正解しました"
+          />
+          <Stack direction="horizontal" gap={2} wrap="wrap">
+            <Button variant="primary" label="もう一度挑戦" onClick={onRetry} />
+            <Button variant="ghost" label="モード選択へ" onClick={onBack} />
+          </Stack>
+        </Stack>
+      </AstryxScope>
     );
   }
 
   // 結果画面
+  const hasMistakes = mistakes.length > 0;
   return (
-    <div className="quiz-end">
-      <div className="quiz-end-header">
-        <h1>クイズ終了！</h1>
-        <div className="end-stats">
-          <div className="end-stat">
-            <span className="end-stat-value correct">{correct}</span>
-            <span className="end-stat-label">正解</span>
-          </div>
-          <div className="end-stat">
-            <span className="end-stat-value incorrect">{incorrect}</span>
-            <span className="end-stat-label">不正解</span>
-          </div>
-          <div className="end-stat">
-            <span className="end-stat-value rate">
-              {rate}
-              <span className="unit">%</span>
-            </span>
-            <span className="end-stat-label">正解率</span>
-          </div>
-        </div>
-        <div className="end-rate-bar">
-          <div
-            className={`end-rate-fill ${rateClass}`}
-            style={{ width: `${rate}%` }}
+    <AstryxScope>
+      <Stack gap={6}>
+        <Heading level={1}>クイズ終了！</Heading>
+        <Grid columns={{ minWidth: 140, max: 2 }} gap={3}>
+          <Stat value={correct} label="正解" />
+          <Stat value={incorrect} label="不正解" />
+        </Grid>
+        <ProgressBar
+          label="正解率"
+          value={rate}
+          hasValueLabel
+          variant={rate >= 80 ? "success" : "accent"}
+        />
+        <Stack direction="horizontal" gap={2} wrap="wrap">
+          {hasMistakes && (
+            <Button
+              variant="primary"
+              label={`間違えた問題を復習 (${mistakes.length}問)`}
+              onClick={startReview}
+            />
+          )}
+          <Button
+            variant={hasMistakes ? "secondary" : "primary"}
+            label="もう一度挑戦"
+            onClick={onRetry}
           />
-        </div>
-      </div>
-
-      <div className="end-actions">
-        <button className="btn-primary end-btn" onClick={onRetry}>
-          もう一度挑戦
-        </button>
-        {mistakes.length > 0 && (
-          <button className="btn-warn end-btn" onClick={startReview}>
-            間違えた問題を復習 ({mistakes.length}問)
-          </button>
+          <Button variant="ghost" label="モード選択へ" onClick={onBack} />
+        </Stack>
+        {hasMistakes && (
+          <List header={`間違えた単語 (${mistakes.length}問)`} hasDividers>
+            {mistakes.map((w) => (
+              <ListItem
+                key={w.id}
+                label={w.english}
+                description={
+                  <Stack gap={0.5}>
+                    <Text>{w.japanese}</Text>
+                    <Text type="supporting">{w.example}</Text>
+                    {w.exampleJa && <Text type="supporting">{w.exampleJa}</Text>}
+                  </Stack>
+                }
+              />
+            ))}
+          </List>
         )}
-        <button className="btn-secondary end-btn" onClick={onBack}>
-          モード選択へ
-        </button>
-      </div>
-
-      {mistakes.length > 0 && (
-        <div className="end-mistakes">
-          <h3>間違えた単語 ({mistakes.length}問)</h3>
-          {mistakes.map((w) => (
-            <div key={w.id} className="word-card end-mistake-item">
-              <div className="word-head">
-                <span className="word-en">{w.english}</span>
-                <span className="word-ja">{w.japanese}</span>
-              </div>
-              <p className="word-example">{w.example}</p>
-              {w.exampleJa && <p className="word-example-ja">{w.exampleJa}</p>}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      </Stack>
+    </AstryxScope>
   );
 }
