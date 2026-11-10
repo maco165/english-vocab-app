@@ -3,8 +3,14 @@ import words from "../data/words";
 import { saveResult } from "../utils/storage";
 import Result from "./Result";
 import { CircleIcon, RefreshIcon, XIcon } from "./icons";
+// Astryx の部品の CSS とテーマはこの画面と一緒に後から読み込む (Quiz.jsx が React.lazy で読む)。
+// どちらも @layer の中に入るので、層の外にある index.css などの既存の指定のほうが常に勝つ。
+// reset.css は読み込まない。行の高さ・見出し・余白・color-scheme をアプリ全体で変え、
+// 置き換えていない画面の見た目が変わるため。box-sizing は index.css が持っている。
+import "@astryxdesign/core/astryx.css";
+import "../themes/vocab/vocab.css";
+import { vocabTheme } from "../themes/vocab/vocab.js";
 import { Theme } from "@astryxdesign/core/theme";
-import { neutralTheme } from "@astryxdesign/theme-neutral/built";
 import { Stack } from "@astryxdesign/core/Stack";
 import { Grid } from "@astryxdesign/core/Grid";
 import { Card } from "@astryxdesign/core/Card";
@@ -16,11 +22,11 @@ import { Banner } from "@astryxdesign/core/Banner";
 import "./Quiz.css";
 import "./Review.css";
 
-// 結果画面だけを Astryx で描く。アプリにダークモードが無いのでライトに固定する。
-// 幅は置き換え前の .quiz-end と同じ最大 720px で中央に置く。
+// 結果画面だけを Astryx で描く。テーマは neutral の字体を丸ゴシックにしたもの (themes/vocab)。
+// アプリにダークモードが無いのでライトに固定する。幅は置き換え前の .quiz-end と同じ最大 720px で中央に置く。
 function AstryxScope({ children }) {
   return (
-    <Theme theme={neutralTheme} mode="light">
+    <Theme theme={vocabTheme} mode="light">
       <Stack hAlign="center">
         <Stack width="100%" maxWidth={720}>
           {children}

@@ -1,8 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, lazy, Suspense } from "react";
 import words from "../data/words";
 import { saveResult } from "../utils/storage";
 import Result from "./Result";
-import QuizEnd from "./QuizEnd";
+
+// 結果画面は Astryx の部品と CSS を使うので、最初の読み込みに含めず、結果を出すときに読む。
+const QuizEnd = lazy(() => import("./QuizEnd"));
 import { ArrowIcon, CircleIcon, XIcon } from "./icons";
 import "./Quiz.css";
 
@@ -155,13 +157,15 @@ export default function Quiz() {
 
   if (phase === "end") {
     return (
-      <QuizEnd
-        total={totalCount}
-        correct={sessionCorrect}
-        mistakes={sessionMistakes}
-        onRetry={() => handleStart(totalCount)}
-        onBack={() => setPhase("start")}
-      />
+      <Suspense fallback={null}>
+        <QuizEnd
+          total={totalCount}
+          correct={sessionCorrect}
+          mistakes={sessionMistakes}
+          onRetry={() => handleStart(totalCount)}
+          onBack={() => setPhase("start")}
+        />
+      </Suspense>
     );
   }
 
