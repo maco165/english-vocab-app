@@ -3,14 +3,8 @@ import words from "../data/words";
 import { saveResult } from "../utils/storage";
 import Result from "./Result";
 import { CircleIcon, RefreshIcon, XIcon } from "./icons";
-// Astryx の部品の CSS とテーマはこの画面と一緒に後から読み込む (Quiz.jsx が React.lazy で読む)。
-// どちらも @layer の中に入るので、層の外にある index.css などの既存の指定のほうが常に勝つ。
-// reset.css は読み込まない。行の高さ・見出し・余白・color-scheme をアプリ全体で変え、
-// 置き換えていない画面の見た目が変わるため。box-sizing は index.css が持っている。
-import "@astryxdesign/core/astryx.css";
-import "../themes/vocab/vocab.css";
-import { vocabTheme } from "../themes/vocab/vocab.js";
-import { Theme } from "@astryxdesign/core/theme";
+// 結果画面は Astryx の部品で描く。テーマと CSS の読み込みは AstryxScope が受け持つ。
+import AstryxScope from "./AstryxScope";
 import { Stack } from "@astryxdesign/core/Stack";
 import { Grid } from "@astryxdesign/core/Grid";
 import { Card } from "@astryxdesign/core/Card";
@@ -21,20 +15,6 @@ import { List, ListItem } from "@astryxdesign/core/List";
 import { Banner } from "@astryxdesign/core/Banner";
 import "./Quiz.css";
 import "./Review.css";
-
-// 結果画面だけを Astryx で描く。テーマは neutral の字体を丸ゴシックにしたもの (themes/vocab)。
-// アプリにダークモードが無いのでライトに固定する。幅は置き換え前の .quiz-end と同じ最大 720px で中央に置く。
-function AstryxScope({ children }) {
-  return (
-    <Theme theme={vocabTheme} mode="light">
-      <Stack hAlign="center">
-        <Stack width="100%" maxWidth={720}>
-          {children}
-        </Stack>
-      </Stack>
-    </Theme>
-  );
-}
 
 function Stat({ value, label }) {
   return (
@@ -98,16 +78,17 @@ export default function QuizEnd({ total, correct, mistakes, onRetry, onBack }) {
     }
   };
 
+  // 正解した語は handleSelect が remainingMistakes から外している。全部外れたら復習完了を出す
+  // (question を null にし、reviewMode は true のまま)。間違えた語は残し、次は別の語を優先して出す。
   const handleNext = useCallback(() => {
-    const updated = remainingMistakes.filter(
-      (w) => w.id !== question.correctWord.id
-    );
-    if (updated.length === 0) {
-      setReviewMode(false);
-      setRemainingMistakes([]);
+    if (remainingMistakes.length === 0) {
+      setQuestion(null);
       return;
     }
-    setQuestion(generateQuestionFrom(updated));
+    const others = remainingMistakes.filter(
+      (w) => w.id !== question.correctWord.id
+    );
+    setQuestion(generateQuestionFrom(others.length > 0 ? others : remainingMistakes));
     setSelectedId(null);
     setIsAnswered(false);
   }, [remainingMistakes, question]);

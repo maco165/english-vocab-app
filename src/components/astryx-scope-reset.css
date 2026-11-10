@@ -1,0 +1,65 @@
+/*
+ * Astryx の reset.css のうち、Astryx の部品が前提にしている指定だけを写し、Astryx の画面の中
+ * (Theme が描く [data-astryx-theme] の内側) に限って効かせる。reset.css を全体に読み込むと、
+ * Astryx を使っていない画面の行の高さ・見出し・余白が変わるため。
+ * 写し元: @astryxdesign/core/src/reset.css (0.7.11)。Astryx の版を上げたら差分を見直す。
+ * @scope に対応していないブラウザでは、開閉の行などがブラウザ標準のボタンの見た目になるだけで、操作はできる。
+ */
+@layer reset {
+  @scope ([data-astryx-theme]) {
+    :where(*),
+    :where(*)::before,
+    :where(*)::after {
+      border-width: 0;
+      border-style: solid;
+      border-color: currentColor;
+    }
+
+    :where(h1, h2, h3, h4, h5, h6) {
+      font-size: inherit;
+      font-weight: inherit;
+    }
+
+    :where(h1, h2, h3, h4, h5, h6, p, blockquote, figure, pre, dl, dd) {
+      margin: 0;
+    }
+
+    :where(a) {
+      color: inherit;
+      text-decoration: inherit;
+    }
+
+    :where(ol, ul, menu) {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    :where(img, svg, video, canvas) {
+      display: block;
+      vertical-align: middle;
+    }
+
+    :where(button, input, optgroup, select, textarea) {
+      font: inherit;
+      color: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    :where(button, [type='button'], [type='reset'], [type='submit']) {
+      -webkit-appearance: button;
+      appearance: button;
+      background-color: transparent;
+      background-image: none;
+    }
+
+    :where(button, [role='button']) {
+      cursor: pointer;
+    }
+
+    :where(:disabled, [aria-disabled='true']) {
+      cursor: default;
+    }
+  }
+}

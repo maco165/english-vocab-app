@@ -43,7 +43,7 @@
   color: var(--text);
 }
 
-.desktop-nav {
+.app-nav {
   display: flex;
   margin-left: auto;
   flex-wrap: wrap;
@@ -108,30 +108,45 @@
   opacity: 0.55;
 }
 
+.app-main {
+  flex: 1 1 auto;
+  padding: 40px 24px 80px;
+}
+
 /*
- * The spec says 767px, but the full link (label + arrow) wraps to a second row
- * below about 819px, so it switches to icon-only at 839px.
+ * The full link (label + arrow) wraps to a second row below about 819px, so the
+ * header switches at 839px: the brand and the icon-only link stay on top, and
+ * the nav becomes a tab bar fixed to the bottom of the screen. Six tabs fit in
+ * one row down to 320px (the app's min-width), so nothing wraps or scrolls.
  */
 @media (max-width: 839px) {
-  /*
-   * Brand and icon-only link share the first row; the nav wraps below. The
-   * zero-height ::after forces the break even when all three would fit, so the
-   * link never sits before the nav. Row gap moves onto the nav to keep spacing.
-   */
-  .app-header {
-    row-gap: 0;
+  .app-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    margin: 0;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 6px max(6px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+    border-radius: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 16px rgba(42, 39, 51, 0.06);
   }
 
-  .app-header::after {
-    content: "";
-    flex-basis: 100%;
-    order: 1;
+  .nav-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 0;
+    font-size: 13px;
+    white-space: nowrap;
   }
 
-  .desktop-nav {
-    order: 2;
-    margin-top: 16px;
-    margin-left: 0;
+  .nav-btn.active {
+    background: var(--accent-soft);
+    box-shadow: none;
   }
 
   .repo-link {
@@ -144,14 +159,9 @@
   .repo-link__ext {
     display: none;
   }
-}
 
-/* The hamburger menu is kept in JSX but hidden; the pill nav wraps instead. */
-.mobile-nav {
-  display: none;
-}
-
-.app-main {
-  flex: 1 1 auto;
-  padding: 40px 24px 80px;
+  /* Keep the last lines of every page above the tab bar. */
+  .app-main {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
 }
