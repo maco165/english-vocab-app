@@ -1,0 +1,6 @@
+/* Astryx (https://github.com/meta/astryx) の部品とテーマの CSS。どちらも @layer の中に入るので、
+   層の外にある index.css などの既存の指定のほうが常に勝つ。
+   Astryx の reset.css は読み込まない。行の高さ・見出しの大きさ・余白・color-scheme をアプリ全体で
+   変えてしまい、置き換えていない画面の見た目が変わるため。box-sizing は index.css が持っている。 */
+@import '@astryxdesign/core/astryx.css';
+@import '@astryxdesign/theme-neutral/theme.css';
