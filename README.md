@@ -10,8 +10,8 @@
 - 英単語に対して4択から日本語の意味を選ぶ
 - 回答後に正誤フィードバックと例文（英語・日本語）を表示
 - プログレスバーで進捗を確認
-- 終了時に正解率・不正解数を表示
-- 間違えた問題だけをその場で復習可能
+- 終了時の結果画面に、正解・不正解の数、正解率のバー、間違えた単語の一覧を表示
+- 間違えた問題だけをその場で復習可能。全問に正解すると「復習完了！」を表示
 
 ### 復習モード
 - 過去に間違えた単語のうち、最後の回答が不正解のものだけを出題
@@ -34,6 +34,10 @@
 - 間違えた単語の一覧（連続正解数バッジ・「この N 語を復習する」ボタン付き）
 - 記録リセット機能
 
+### Q&A
+- アプリの使い方の質問 8 つと答え（登録の要否、問題数、復習に出る単語、記録の保存先と消し方など）
+- 質問を押すと答えが開く。開くのは一度に 1 つ
+
 ## 技術構成
 
 | 項目 | 技術 |
@@ -41,6 +45,7 @@
 | フレームワーク | React 19 |
 | ビルドツール | Vite 7 |
 | スタイル | CSS（CSS カスタムプロパティによるデザイントークン） |
+| UI 部品（一部） | [Astryx](https://github.com/meta/astryx) 0.7.11。結果画面と Q&A だけで使い、開いたときに読み込む（[Astryx の使い方](#astryx-の使い方)） |
 | データ保存 | localStorage |
 | 単語データ | 固定データ（1000語、例文・日本語訳付き） |
 | 文法データ | 固定データ（50項目） |
@@ -81,11 +86,19 @@ english-vocab-app/
     ├── data/
     │   ├── words.js          # 英単語データ（1000語）
     │   └── grammar.js        # 文法データ（50項目）
+    ├── themes/
+    │   └── vocab/            # Astryx のテーマ（neutral の字体を丸ゴシックにしたもの）
+    │       ├── vocabTheme.ts       # テーマの元（defineTheme）
+    │       ├── vocabTheme.doc.mjs  # テーマの説明（CLI が読む）
+    │       └── vocab.js / vocab.css / *.d.ts  # theme build の出力（手で直さない）
     ├── components/
     │   ├── icons.jsx         # インライン SVG アイコン
+    │   ├── AstryxScope.jsx   # Astryx の画面の土台（テーマ・CSS の読み込み・幅）
+    │   ├── astryx-scope-reset.css  # Astryx の画面の中だけに効かせる reset
     │   ├── Quiz.jsx          # クイズ画面（モード選択・出題）
     │   ├── Quiz.css
-    │   ├── QuizEnd.jsx       # クイズ終了画面（結果・セッション復習）
+    │   ├── QuizEnd.jsx       # クイズ終了画面（結果・セッション復習。Astryx）
+    │   ├── QA.jsx            # Q&A（Astryx）
     │   ├── Result.jsx        # 1問ごとの正誤フィードバック
     │   ├── Result.css
     │   ├── Review.jsx        # 復習モード（間違えた単語のみ）
@@ -100,13 +113,13 @@ english-vocab-app/
         └── storage.js        # localStorage操作ユーティリティ
 ```
 
-## 設計
+`.claude/CLAUDE.md` は Claude Code などの AI 向けの説明です。Astryx の部品の一覧と使い方を `astryx init` が書き込み、版を上げたときは `npm run astryx -- upgrade` で直します。
 
-この節は `main` のコードから書いています。結果画面を作り直す PR #7 がマージされたら更新します。
+## 設計
 
 ### 構成
 
-サーバーを持たない静的なアプリです。GitHub Pages が配る HTML・JS・CSS がブラウザの中だけで動き、単語と文法のデータは JS に同梱されています。回答の記録はブラウザの localStorage に保存するので、外部との通信はページの読み込みだけです。
+サーバーを持たない静的なアプリです。GitHub Pages が配る HTML・JS・CSS がブラウザの中だけで動き、単語と文法のデータは JS に同梱されています。回答の記録はブラウザの localStorage に保存するので、外部との通信はページの読み込みだけです。結果画面と Q&A は Astryx の部品で描き、その JS と CSS は画面を開いたときに読み込みます（`React.lazy`）。
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
@@ -117,7 +130,7 @@ english-vocab-app/
 
 ### 画面遷移
 
-ページはヘッダーのナビで切り替えます。URL は変わらず、`App.jsx` の `page` の状態だけで表示を切り替えます。ナビからはどのページにも直接移れます。図には、ナビ以外の移り方だけを矢印で描いています。
+ページはナビで切り替えます。ナビは、幅が 840px 以上ではヘッダーの中に、839px 以下では画面の下に固定したタブとして並びます。URL は変わらず、`App.jsx` の `page` の状態だけで表示を切り替えます。ナビからはどのページにも直接移れます。図には、ナビ以外の移り方だけを矢印で描いています。復習のページは開くたびに作り直し、最新の記録から出題します（`reviewKey` を 1 つ増やして `key` に渡す）。
 
 ```mermaid
 stateDiagram-v2
@@ -127,6 +140,7 @@ stateDiagram-v2
   state "単語一覧 (WordList)" as words
   state "文法 (GrammarList)" as grammar
   state "統計 (Stats)" as stats
+  state "Q&A (QA)" as qa
   [*] --> quiz: 起動時
   stats --> review: 「この N 語を復習する」
 ```
@@ -141,6 +155,7 @@ stateDiagram-v2
   state "結果 (phase=end)" as result
   state "結果画面からの復習 (reviewMode)" as rask
   state "復習の回答済み" as ranswered
+  state "復習完了 (reviewMode で問題なし)" as rdone
   [*] --> select
   select --> ask: 30問 / 100問 / 全問 / カスタムで開始
   ask --> answered: 選択肢を押す（正誤を保存）
@@ -151,14 +166,16 @@ stateDiagram-v2
   result --> rask: 間違えた問題を復習
   rask --> ranswered: 選択肢を押す（正誤を保存）
   ranswered --> rask: 次へ（未正解の語が残る）
-  ranswered --> result: 次へ（全部正解した）
+  ranswered --> rdone: 次へ（全部正解した）
+  rdone --> ask: もう一度挑戦
+  rdone --> select: モード選択へ
 ```
 
-全部正解したときに出るはずの「復習完了！」の画面には、今の作りでは届きません（[既知の課題](#既知の課題)）。
+結果画面からの復習では、正解した語を残りから外します。間違えた語は残し、次はできるだけ別の語を出します。残りが無くなったら「復習完了！」を出します（`QuizEnd.jsx` の `handleNext`）。
 
 ### コンポーネント構成
 
-実線は描画の親子、点線はデータと保存処理の参照です。アイコン（`icons.jsx`）はほぼすべての画面が使うので省いています。
+実線は描画の親子、太い線は開いたときに読み込む部品（`React.lazy`）、点線はデータと保存処理の参照です。アイコン（`icons.jsx`）はほぼすべての画面が使うので省いています。
 
 ```mermaid
 flowchart TD
@@ -168,10 +185,14 @@ flowchart TD
   App --> WordList["WordList.jsx"]
   App --> GrammarList["GrammarList.jsx"]
   App --> Stats["Stats.jsx"]
+  App ==> QA["QA.jsx<br/>Q&A"]
   Quiz --> QuizStart["QuizStart<br/>（Quiz.jsx の中）"]
   Quiz --> Result["Result.jsx<br/>1 問ごとの正誤"]
-  Quiz --> QuizEnd["QuizEnd.jsx<br/>結果と復習"]
+  Quiz ==> QuizEnd["QuizEnd.jsx<br/>結果と復習"]
   QuizEnd --> Result
+  QuizEnd --> Scope["AstryxScope.jsx<br/>テーマ・CSS・幅"]
+  QA --> Scope
+  Scope -.-> theme[("themes/vocab")]
   Review --> Result
   words[("data/words.js")] -.-> Quiz
   words -.-> QuizEnd
@@ -226,6 +247,28 @@ erDiagram
 - `getMistakeWordIds()`: 一度でも間違え（`incorrect > 0`）、かつ最後の回答が不正解（`streak === 0`）の単語を復習の対象にする。そのため、一度正解すると対象から外れる
 - `resetResults()`: 統計の画面の「記録をリセット」で、キーごと消す
 
+### Astryx の使い方
+
+結果画面と Q&A は、Meta の OSS のデザインシステム Astryx の部品で描いています。ほかの画面は今までどおり自前の CSS です。2 つの作り方が同じ画面に混ざらないよう、次のように分けています。
+
+| 決めたこと | 理由 |
+|---|---|
+| Astryx の画面は `React.lazy` で開いたときに読み込む | Astryx の JS と CSS は gzip で約 120 kB ある。最初の読み込み（gzip で JS 129 kB・CSS 3.6 kB）を変えないため |
+| Astryx の `reset.css` は全体に読み込まない。部品が前提にする指定だけを `astryx-scope-reset.css` に写し、`@scope ([data-astryx-theme])` で Astryx の画面の中に限る | 全体に読み込むと、行の高さ・見出し・余白・`color-scheme` が変わり、Astryx を使っていない画面の見た目が変わる |
+| テーマは neutral を受け継ぎ、字体だけを丸ゴシックにした `themes/vocab` | 他の画面と字体をそろえるため。`tokens` で字体を上書きしても反映されないので `typography` で指定している |
+| テーマは `mode="light"` に固定する | アプリにダークモードが無く、端末がダーク設定のときに Astryx の画面だけ暗くなるのを防ぐ |
+| Astryx の CSS はすべて `@layer` の中に入る | 層の外にある `index.css` などの既存の指定が常に勝つので、既存の画面に影響しない |
+
+テーマを変えたときと、Astryx の版を上げたときは、次を実行します。
+
+```bash
+npm run astryx -- theme build src/themes/vocab/vocabTheme.ts   # テーマを組み立て直す（出力もコミットする）
+npm run astryx -- upgrade --from <前の版> --apply                # 版を上げたあと、.claude/CLAUDE.md などを直す
+npm run build && npm run astryx -- doctor --built dist          # 納品前の検査
+```
+
+版を上げたら、`astryx-scope-reset.css` と写し元の `@astryxdesign/core/src/reset.css` の差分も見直します。CLI（`@astryxdesign/cli`）は Node 22.13 以上が要ります。GitHub Actions のビルドは Node 20 ですが、CLI を使わないので影響しません。
+
 ### ビルドと公開
 
 `main` に push すると、GitHub Actions（`.github/workflows/deploy.yml`）がビルドして GitHub Pages に公開します。公開先は `https://maco165.github.io/english-vocab-app/` で、`vite.config.js` の `base` を `/english-vocab-app/` にしてパスを合わせています。
@@ -247,14 +290,13 @@ flowchart LR
 
 | 課題 | 場所 | 中身 |
 |---|---|---|
-| 「復習完了！」の画面に届かない | `src/components/QuizEnd.jsx` の `handleNext` | 結果画面からの復習で最後の 1 語に正解すると、`reviewMode` を false に戻すので結果画面に戻る。完了の画面は `reviewMode` が true で問題が無いときだけ出るが、その状態にならない |
-| スマホでナビが 2 段に折り返す | `src/App.css` の `@media (max-width: 839px)` と `.mobile-nav` | 839px 以下ではナビの 5 つのボタンが幅に合わせて折り返し、390px では「クイズ・復習・単語一覧」と「文法・統計」の 2 段になる。ハンバーガーメニュー（`.mobile-nav`）は JSX に残っているが、CSS で常に非表示にしている。`App.css` のコメントには、メニューより折り返しのほうを選んだと書かれている |
-| lint のエラーが 1 件ある | `src/App.jsx:107` | 復習のページを開くたびに作り直すため `<Review key={Date.now()} />` としている。描画中に `Date.now()` を呼ぶので `react-hooks/purity` に当たる |
+| Astryx の画面を初めて開くとき、一瞬だけ何も出ない | `Quiz.jsx` と `App.jsx` の `Suspense` | 読み込みのあいだの表示（`fallback`）を `null` にしている |
+| `@scope` に対応していないブラウザでは、Q&A の質問の行がブラウザ標準のボタンの見た目になる | `src/components/astryx-scope-reset.css` | 操作はできる。主なブラウザは対応済み |
 
 ## レスポンシブ対応
 
 - 中身の段組みはブレークポイントを設けず、`flex-wrap` と `repeat(auto-fit, minmax(min(Npx, 100%), 1fr))` で折り返す
-- ヘッダーだけ 839px 以下で組み方を変える（`App.css` の `@media (max-width: 839px)`）。1 段目にロゴと GitHub のアイコン、2 段目にナビを置き、ナビは幅に合わせて折り返す。GitHub のリンクは文字を消してアイコンだけにする
+- ヘッダーとナビだけ 839px 以下で組み方を変える（`App.css` の `@media (max-width: 839px)`）。ヘッダーにはロゴと GitHub のアイコンだけを置き、ナビは画面の下に固定したタブにする。6 つのタブは 320px まで 1 段に収まる。下のタブに本文の最後が隠れないよう、`.app-main` の下の余白を広げる。GitHub のリンクは文字を消してアイコンだけにする
 - スマホ幅ではカード・選択肢が 1 列になる
 
 ## デザイン
@@ -264,6 +306,7 @@ flowchart LR
 - アクセント: `#C9461F`（朱）/ 復習: `#B7791F`（琥珀）
 - 正解: `#1E7F6E`（ティール）/ 不正解: `#C9461F`（朱）。赤／緑の対比は使わない
 - フォント: Zen Maru Gothic（日本語）＋ Nunito（英単語・数字）
+- Astryx の画面（結果画面・Q&A）は、Astryx の neutral テーマの配色に、字体だけ Zen Maru Gothic を合わせている。数字は色を付けず、主なボタンは黒
 
 ## ライセンス
 
